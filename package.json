@@ -1,0 +1,106 @@
+{
+  "name": "footsteps",
+  "displayName": "footsteps",
+  "description": "Highlight and navigate between your most recently edited chunks of code",
+  "version": "0.0.1",
+  "author": {
+    "name": "Amelia Wattenberger",
+    "email": "wattenberger@gmail.com",
+    "url": "http://wattenberger.com"
+  },
+  "engines": {
+    "vscode": "^1.51.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "title": "Skip back in footsteps",
+        "command": "footsteps.skipBack",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Skip forwards in footsteps",
+        "command": "footsteps.skipForwards",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Skip back in footsteps (same file)",
+        "command": "footsteps.skipBackSameFile",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Skip forwards in footsteps (same file)",
+        "command": "footsteps.skipForwardsSameFile",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Skip back in footsteps (different file)",
+        "command": "footsteps.skipBackDifferentFile",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Skip forwards in footsteps (different file)",
+        "command": "footsteps.skipForwardsDifferentFile",
+        "category": "Footsteps navigation"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Footsteps configuration",
+      "properties": {
+        "footsteps.maxNumberOfChangesToRemember": {
+          "type": "number",
+          "default": 10,
+          "description": "The number of changes to save in history."
+        },
+        "footsteps.maxNumberOfChangesToHighlight": {
+          "type": "number",
+          "default": 6,
+          "description": "The number of changes to highlight."
+        },
+        "footsteps.highlightColor": {
+          "type": "string",
+          "default": "rgb(255, 99, 72)",
+          "description": "The color of the highlighted trail (in rgb format)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run package",
+    "compile": "webpack --devtool nosources-source-map --config ./build/node-extension.webpack.config.js",
+    "watch": "webpack --watch --devtool nosources-source-map --info-verbosity verbose --config ./build/node-extension.webpack.config.js",
+    "package": "webpack --mode production --config ./build/node-extension.webpack.config.js",
+    "test-compile": "tsc -p ./",
+    "test-watch": "tsc -watch -p ./",
+    "pretest": "yarn run test-compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.0",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.51.0",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.1.3",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "vscode-test": "^1.4.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "d3-scale": "^3.2.3"
+  }
+}
