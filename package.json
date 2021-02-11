@@ -4,6 +4,7 @@
   "description": "Highlight and navigate between your most recently edited chunks of code",
   "version": "0.0.2",
   "publisher": "Wattenberger",
+  "icon": "./icon.png",
   "author": {
     "name": "Amelia Wattenberger",
     "email": "wattenberger@gmail.com",
