@@ -3,10 +3,15 @@
   "displayName": "footsteps",
   "description": "Highlight and navigate between your most recently edited chunks of code",
   "version": "0.0.1",
+  "publisher": "Wattenberger",
   "author": {
     "name": "Amelia Wattenberger",
     "email": "wattenberger@gmail.com",
     "url": "http://wattenberger.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wattenberger/footsteps-vscode.git"
   },
   "engines": {
     "vscode": "^1.51.0"
@@ -67,7 +72,7 @@
         },
         "footsteps.highlightColor": {
           "type": "string",
-          "default": "rgb(255, 99, 72)",
+          "default": "rgb(153, 128, 250)",
           "description": "The color of the highlighted trail (in rgb format)."
         }
       }
@@ -99,8 +104,5 @@
     "vscode-test": "^1.4.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
-  },
-  "dependencies": {
-    "d3-scale": "^3.2.3"
   }
 }

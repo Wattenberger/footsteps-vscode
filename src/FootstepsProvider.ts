@@ -1,5 +1,4 @@
-import { DocumentHighlightProvider, window, workspace, Position, Selection, Range, Uri, TextEditorDecorationType, Color } from 'vscode';
-import { scaleLinear } from 'd3-scale';
+import { DocumentHighlightProvider, window, workspace, Position, Selection, Range, Uri, TextEditorDecorationType, Color, ExtensionContext, TextDocumentContentChangeEvent, TextDocument } from 'vscode';
 
 import { HistoryItem, History } from "./types";
 import { onHighlightLine } from "./decorator";
@@ -12,7 +11,7 @@ import { onHighlightLine } from "./decorator";
  * - don't save changes in non-workspace/Untitled files
  *
  */
-export class FootstepsProvider implements DocumentHighlightProvider {
+export class FootstepsProvider {
 
     private history: History = [];
     private currentHistoryIndex: number = 0;
@@ -25,33 +24,30 @@ export class FootstepsProvider implements DocumentHighlightProvider {
         this.onSyncWithSettings();
         this.createDecorationTypes();
 
-        window.onDidChangeActiveTextEditor((event) => {
+        window.onDidChangeActiveTextEditor(() => {
             this.onHighlightChanges();
         });
 
-        window.onDidChangeTextEditorSelection(event => {
+        window.onDidChangeTextEditorSelection(() => {
             this.onHighlightChanges();
         });
 
-        workspace.onDidChangeTextDocument((event) => {
-            const newText = event.contentChanges[0].text;
-            const fileName = event.document.fileName;
+        // workspace.onDidChangeTextDocument((event) => {
+        //     const newText = event.contentChanges[0].text;
+        //     const fileName = event.document.fileName;
 
-            // don't count newlines or deletions
-            if (!newText || !newText.replace(/[\n| ]/g, "").length) {
-                if (newText.includes("\n")) {
-                    this.incrementFollowingChanges(fileName, event.contentChanges[0].range.end.line);
-                }
-                return;
-            }
+        //     // don't count newlines or deletions
+        //     if (!newText || !newText.replace(/[\n| ]/g, "").length) {
+        //         return;
+        //     }
 
-            // let's grab the first line of the change
-            const line = event.contentChanges[0].range.end.line;
-            const char = event.contentChanges[0].range.end.character + 1;
+        //     // let's grab the first line of the change
+        //     const line = event.contentChanges[0].range.end.line;
+        //     const char = event.contentChanges[0].range.end.character + 1;
 
-            this.addChangeToHistory(fileName, line, char);
-            this.onHighlightChanges();
-        });
+        //     this.addChangeToHistory(fileName, line, char);
+        //     this.onHighlightChanges();
+        // });
 
         workspace.onDidChangeConfiguration((event) => {
             if (!event.affectsConfiguration('footsteps')) {
@@ -70,17 +66,17 @@ export class FootstepsProvider implements DocumentHighlightProvider {
     }
 
     private createDecorationTypes(): void {
-        const opacityScale = scaleLinear()
-            .domain([0, this.maxNumberOfChangesToHighlight])
-            .range([0.6, 0])
-            .clamp(true);
+        const getOpacity = (index: number) => {
+            const percentAlong = index / this.maxNumberOfChangesToHighlight;
+            return 0.6 * (1 - percentAlong);
+        };
 
         this.decorationTypes = new Array(this.maxNumberOfChangesToHighlight).fill(0).map((_, i) => (
             window.createTextEditorDecorationType({
                 backgroundColor: [
                     this.highlightColor.replace("rgb", "rgba").replace(/\)/g, ""),
                     ", ",
-                    opacityScale(i),
+                    getOpacity(i),
                     ")",
                 ].join(""),
                 isWholeLine: true,
@@ -88,62 +84,47 @@ export class FootstepsProvider implements DocumentHighlightProvider {
         ));
     }
 
-    private incrementFollowingChanges(fileName: string, lineNumber: number, diff?: number = 1): void {
-        this.history = this.history.map(historyItem => {
-            if (historyItem[0] !== fileName) {
-                return historyItem;
-            }
-            if (historyItem[1].start.line <= lineNumber) {
-                return historyItem;
-            }
-            const range = historyItem[1];
-            return [
-                fileName,
-                new Range(
-                    new Position(range.start.line + 1, range.start.character),
-                    new Position(range.end.line + 1, range.end.character),
-                ),
-            ];
-        });
-    }
-
     public onHighlightChanges(): void {
         const editor = window.activeTextEditor;
-        const fileName = editor.document.fileName;
+        const fileName = editor?.document.fileName || "";
 
         const fileChanges = this.getChangesInFile(fileName);
 
-        fileChanges.forEach(([_, range], index: number) => {
-            onHighlightLine(range, this.decorationTypes[index]);
+        fileChanges.forEach(([_, lines], index: number) => {
+            onHighlightLine(lines, this.decorationTypes[index]);
         });
     }
 
-    private addChangeToHistory(fileName: string, lineNumber: number, characterNumber: number): void {
+    private addChangeToHistory(fileName: string, lines: number[], character: number): void {
         this.currentHistoryIndex = 0;
 
-        const overlappingChangeIndex = this.history.findIndex(([changeFileName, changeRange]: HistoryItem) => (
-            changeFileName === fileName
-            && changeRange.start.line - 1 <= lineNumber
-            && changeRange.end.line + 1 >= lineNumber
-        ));
+        const overlappingChangeIndex = this.history
+            .slice(0, this.maxNumberOfChangesToHighlight)
+            .findIndex(([
+                changeFileName,
+                changeLines
+            ]: HistoryItem) => (
+                changeFileName === fileName
+                && changeLines.find(line => (
+                    lines.includes(line)
+                    || lines.includes(line - 1)
+                    || lines.includes(line)
+                ))
+            ));
+
+        const lastPosition = [lines.slice(-1)[0], character];
 
         if (overlappingChangeIndex !== -1) {
-            const oldRange = this.history[overlappingChangeIndex][1];
-            const start = oldRange.start.line < lineNumber ? oldRange.start : new Position(lineNumber, 0);
-            const end = oldRange.end.line === lineNumber ? new Position(lineNumber, Math.max(characterNumber, oldRange.end.character))
-                : oldRange.end.line < lineNumber ? new Position(lineNumber, characterNumber)
-                    : oldRange.end;
-            const newRange = new Range(start, end);
+            const oldLines = this.history[overlappingChangeIndex][1];
+            const newLines = [...new Set([...lines, ...oldLines])];
             this.history = [
-                [fileName, newRange],
+                [fileName, newLines, lastPosition],
                 ...this.history.slice(0, overlappingChangeIndex),
                 ...this.history.slice(overlappingChangeIndex + 1),
             ];
         } else {
-            const newPosition = new Position(lineNumber, characterNumber);
-            const newRange = new Range(newPosition, newPosition);
             this.history = [
-                [fileName, newRange],
+                [fileName, lines, lastPosition],
                 ...this.history,
             ];
         }
@@ -163,10 +144,10 @@ export class FootstepsProvider implements DocumentHighlightProvider {
 
     public onTimeTravel(
         diff: number = 0,
-        restriction?: "any" | "within-file" | "across-files" = "any"
+        restriction: "any" | "within-file" | "across-files" = "any"
     ): void {
         const editor = window.activeTextEditor;
-        const fileName = editor.document.fileName
+        const fileName = editor?.document.fileName || "";
 
         const changes = restriction === "any" ? this.history
             : restriction === "within-file" ? this.getChangesInFile(fileName)
@@ -176,16 +157,16 @@ export class FootstepsProvider implements DocumentHighlightProvider {
         let newHistoryIndex = this.currentHistoryIndex - diff;
         newHistoryIndex = Math.max(0, newHistoryIndex);
         newHistoryIndex = Math.min(newHistoryIndex, changes.length - 1);
-        const [newFileName, newRange] = changes[newHistoryIndex];
+        const [newFileName, newLines, newPosition] = changes[newHistoryIndex];
 
-        if (!newRange) {
+        if (!newLines) {
             return;
         }
 
         this.currentHistoryIndex = newHistoryIndex;
 
-        const newSelectionLine = newRange.end.line;
-        const newSelectionChar = newRange.end.character + 1;
+        const newSelectionLine = newPosition[0];
+        const newSelectionChar = newPosition[1] + 1;
 
         this.onUpdateSelection(newFileName, newSelectionLine, newSelectionChar);
     }
@@ -203,10 +184,101 @@ export class FootstepsProvider implements DocumentHighlightProvider {
 
         workspace.openTextDocument(Uri.file(fileName)).then((doc) => {
             window.showTextDocument(doc).then(() => {
+                if (!editor) { return; }
                 editor.selection = newSelection;
                 editor.revealRange(newVisibleRange, 2);
             });
         });
     }
 
+    public onTextChange(
+        contentChanges: TextDocumentContentChangeEvent[],
+        document: TextDocument,
+    ) {
+        if (!contentChanges.length) {
+            return;
+        }
+
+        this.history = this.history.map((step) => (
+            this.updateStepWithContentChanges(step, contentChanges)
+        ));
+
+        const newText = contentChanges[0].text;
+
+        // don't add blank changes to history
+        if (!newText || !newText.replace(/[\n| ]/g, "").length) {
+            return;
+        }
+
+        let linesSet = new Set();
+
+        contentChanges.forEach(({ range, rangeLength, text }) => {
+            const linesStart: number = range.start.line;
+            const linesEnd = range.end.line;
+            const numberOfLines = linesEnd - linesStart + 1;
+            const numberOfNewLines = text.split("\n").length - 1;
+            const numberOfLinesDeleted = rangeLength
+                ? range.end.line - range.start.line
+                : 0;
+
+            new Array(numberOfLines + numberOfNewLines - numberOfLinesDeleted).fill(0).forEach((_, i: number) => {
+                linesSet.add(linesStart + i);
+            });
+        });
+        const lines = [...linesSet] as number[];
+        const char = contentChanges.slice(-1)[0].range.end.character + 1;
+
+        this.addChangeToHistory(document.fileName, lines, char);
+        this.onHighlightChanges();
+    }
+
+    private updateStepWithContentChanges(
+        [stepFileName, lines, lastPosition]: HistoryItem,
+        contentChanges: TextDocumentContentChangeEvent[]
+    ): HistoryItem {
+        const editor = window.activeTextEditor;
+        const fileName = editor?.document.fileName;
+
+        if (stepFileName !== fileName) {
+            return [stepFileName, lines, lastPosition];
+        }
+
+        let newLines = [...lines];
+        let newLastLine = lastPosition[0];
+
+        contentChanges.forEach(({ range, rangeLength, text }) => {
+            if (lines.slice(-1)[0] < lines[0]) {
+                return lines;
+            }
+            // remove deleted lines
+            // newLines = rangeLength ? newLines.filter(line => (
+            //     line < range.start.line
+            //     || line > range.end.line
+            // )) : newLines;
+
+            let runningLineDiff = 0;
+
+            const numberOfNewLines = text.split("\n").length - 1;
+            const numberOfLinesDeleted = rangeLength
+                ? range.end.line - range.start.line
+                : 0;
+            runningLineDiff -= numberOfLinesDeleted;
+            runningLineDiff += numberOfNewLines;
+
+            if (newLastLine > range.start.line) {
+                newLastLine += runningLineDiff;
+            }
+
+            newLines = [...new Set(
+                newLines.map(line => (
+                    line <= range.start.line
+                        ? line
+                        : line + runningLineDiff
+                ))
+            )].sort();
+        });
+
+        const newLastPosition = [newLastLine, lastPosition[1]];
+        return [fileName, newLines, newLastPosition];
+    }
 }

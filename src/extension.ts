@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { ExtensionContext, languages, commands } from 'vscode';
+import { ExtensionContext, languages, commands, workspace, window } from 'vscode';
 import { FootstepsProvider } from './FootstepsProvider';
 
 // this method is called when your extension is activated
@@ -8,7 +8,7 @@ import { FootstepsProvider } from './FootstepsProvider';
 export function activate(context: ExtensionContext) {
 	const footstepsProvider = new FootstepsProvider();
 
-	languages.registerDocumentHighlightProvider("*", footstepsProvider);
+	// languages.registerDocumentHighlightProvider("*", footstepsProvider);
 
 	commands.registerCommand("footsteps.skipBack", () => {
 		footstepsProvider.onTimeTravel(-1);
@@ -34,6 +34,9 @@ export function activate(context: ExtensionContext) {
 		footstepsProvider.onTimeTravel(1, "across-files");
 	});
 
+	workspace.onDidChangeTextDocument((event) => {
+		footstepsProvider.onTextChange([...event.contentChanges], event.document);
+	});
 }
 
 // this method is called when your extension is deactivated
