@@ -2,23 +2,25 @@
 
 Keep your place when jumping between a different parts of your code. This is a vscode extension that will highlight lines as you edit them, fading as you move away.
 
-![The extension in-action](./footsteps.gif)
+![The extension in-action](https://github.com/Wattenberger/footsteps-vscode/blob/main/footsteps.gif?raw=true)
 
 ## Extension Settings
 
 This extension contributes the following settings:
 
+* `footsteps.highlightColor`
+
+  The color of the highlighted trail (in rgb format)
+
 * `footsteps.maxNumberOfChangesToRemember`
 
   The number of changes to save in history
 
+  d
+
 * `footsteps.maxNumberOfChangesToHighlight`
 
   The number of changes to highlight. A lower number drops off more quickly.
-
-* `footsteps.highlightColor`
-
-  The color of the highlighted trail (in rgb format)
 
 
 ## Commands
