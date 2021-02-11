@@ -32,23 +32,6 @@ export class FootstepsProvider {
             this.onHighlightChanges();
         });
 
-        // workspace.onDidChangeTextDocument((event) => {
-        //     const newText = event.contentChanges[0].text;
-        //     const fileName = event.document.fileName;
-
-        //     // don't count newlines or deletions
-        //     if (!newText || !newText.replace(/[\n| ]/g, "").length) {
-        //         return;
-        //     }
-
-        //     // let's grab the first line of the change
-        //     const line = event.contentChanges[0].range.end.line;
-        //     const char = event.contentChanges[0].range.end.character + 1;
-
-        //     this.addChangeToHistory(fileName, line, char);
-        //     this.onHighlightChanges();
-        // });
-
         workspace.onDidChangeConfiguration((event) => {
             if (!event.affectsConfiguration('footsteps')) {
                 return;
@@ -68,7 +51,7 @@ export class FootstepsProvider {
     private createDecorationTypes(): void {
         const getOpacity = (index: number) => {
             const percentAlong = index / this.maxNumberOfChangesToHighlight;
-            return 0.6 * (1 - percentAlong);
+            return 0.4 * (1 - percentAlong);
         };
 
         this.decorationTypes = new Array(this.maxNumberOfChangesToHighlight).fill(0).map((_, i) => (
@@ -108,7 +91,7 @@ export class FootstepsProvider {
                 && changeLines.find(line => (
                     lines.includes(line)
                     || lines.includes(line - 1)
-                    || lines.includes(line)
+                    || lines.includes(line + 1)
                 ))
             ));
 
