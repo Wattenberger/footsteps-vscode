@@ -1,6 +1,6 @@
 # 👣 Footsteps 🐾
 
-Keep your place when jumping between a different parts of your code. This is a vscode extension that will highlight lines as you edit them, fading as you move away.
+Keep your place when jumping between a different parts of your code. This is a VSCode extension that will highlight lines as you edit them, fading as you move away.
 
 ![The extension in-action](https://github.com/Wattenberger/footsteps-vscode/blob/main/footsteps.gif?raw=true)
 
@@ -15,8 +15,6 @@ This extension contributes the following settings:
 * `footsteps.maxNumberOfChangesToRemember`
 
   The number of changes to save in history
-
-  d
 
 * `footsteps.maxNumberOfChangesToHighlight`
 
