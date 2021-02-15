@@ -1,6 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { ExtensionContext, languages, commands, workspace, window } from 'vscode';
+import { ExtensionContext, languages, commands, workspace, window, WorkspaceEdit, ConfigurationTarget } from 'vscode';
 import { FootstepsProvider } from './FootstepsProvider';
 
 // this method is called when your extension is activated
@@ -32,6 +32,22 @@ export function activate(context: ExtensionContext) {
 
 	commands.registerCommand("footsteps.skipForwardsDifferentFile", () => {
 		footstepsProvider.onTimeTravel(1, "across-files");
+	});
+
+	commands.registerCommand("footsteps.toggleHighlightingLines", async () => {
+		const userSetting = workspace.getConfiguration("footsteps");
+		const doHighlightChanges = userSetting.get("doHighlightChanges");
+		const specificSetting = userSetting.inspect("doHighlightChanges");
+		const doSetAsGlobal = specificSetting && specificSetting.workspaceValue === undefined;
+		await userSetting.update("doHighlightChanges", !doHighlightChanges, doSetAsGlobal);
+	});
+
+	commands.registerCommand("footsteps.clearChangesWithinFile", () => {
+		const document = window?.activeTextEditor?.document;
+		if (!document) {
+			return;
+		}
+		footstepsProvider.onClearChangesWithinFile(document);
 	});
 
 	workspace.onDidChangeTextDocument((event) => {

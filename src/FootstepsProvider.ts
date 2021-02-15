@@ -3,14 +3,6 @@ import { DocumentHighlightProvider, window, workspace, Position, Selection, Rang
 import { HistoryItem, History } from "./types";
 import { onHighlightLine } from "./decorator";
 
-/**
- * FootstepsProvider
- *
- * TODO:
- * - handle newlines above changes
- * - don't save changes in non-workspace/Untitled files
- *
- */
 export class FootstepsProvider {
 
     private history: History = [];
@@ -19,6 +11,9 @@ export class FootstepsProvider {
     private maxNumberOfChangesToHighlight: number = 6;
     private decorationTypes: TextEditorDecorationType[] = [];
     private highlightColor: string = "rgb(255, 99, 72)";
+    private doHighlightChanges: boolean = true;
+    private highlightColorMaxOpacity: number = 0.6;
+    private doHighlightCurrentlyFocusedChunk: boolean = true;
 
     constructor() {
         this.onSyncWithSettings();
@@ -43,15 +38,23 @@ export class FootstepsProvider {
 
     private onSyncWithSettings(): void {
         const userSetting = workspace.getConfiguration("footsteps");
+
+        if (this.doHighlightChanges && !userSetting.doHighlightChanges) {
+            this.clearChanges();
+        }
+
         this.maxNumberOfChangesToRemember = userSetting.maxNumberOfChangesToRemember;
         this.maxNumberOfChangesToHighlight = userSetting.maxNumberOfChangesToHighlight;
         this.highlightColor = userSetting.highlightColor;
+        this.doHighlightChanges = userSetting.doHighlightChanges;
+        this.highlightColorMaxOpacity = userSetting.highlightColorMaxOpacity;
+        this.doHighlightCurrentlyFocusedChunk = userSetting.doHighlightCurrentlyFocusedChunk;
     }
 
     private createDecorationTypes(): void {
         const getOpacity = (index: number) => {
             const percentAlong = index / this.maxNumberOfChangesToHighlight;
-            return 0.4 * (1 - percentAlong);
+            return this.highlightColorMaxOpacity * (1 - percentAlong);
         };
 
         this.decorationTypes = new Array(this.maxNumberOfChangesToHighlight).fill(0).map((_, i) => (
@@ -68,12 +71,30 @@ export class FootstepsProvider {
     }
 
     public onHighlightChanges(): void {
+        if (!this.doHighlightChanges) {
+            return;
+        }
         const editor = window.activeTextEditor;
         const fileName = editor?.document.fileName || "";
 
         const fileChanges = this.getChangesInFile(fileName);
 
+        if (!this.doHighlightCurrentlyFocusedChunk) {
+            this.clearChanges();
+        }
+        let currentRange: number[] = [0, 0];
+        if (editor && editor.selection) {
+            currentRange = [editor.selection.start.line, editor.selection.end.line];
+        }
+
         fileChanges.forEach(([_, lines], index: number) => {
+            if (!this.doHighlightCurrentlyFocusedChunk) {
+                const linesRange = [Math.min(...lines), Math.max(...lines)];
+                const isCurrentChunk = linesRange[0] <= currentRange[0] && linesRange[1] >= currentRange[1];
+                if (isCurrentChunk) {
+                    return;
+                }
+            }
             onHighlightLine(lines, this.decorationTypes[index]);
         });
     }
@@ -213,6 +234,38 @@ export class FootstepsProvider {
 
         this.addChangeToHistory(document.fileName, lines, char);
         this.onHighlightChanges();
+    }
+
+    private clearDecoration = window.createTextEditorDecorationType({
+        backgroundColor: "rgba(0,0,0,0.001)",
+        isWholeLine: true,
+    });
+
+    public onClearChangesWithinFile(
+        document: TextDocument,
+    ) {
+        this.history = this.history.filter(([
+            changeFileName,
+            changeLines
+        ]: HistoryItem) => {
+            const isCurrentFile = changeFileName === document.fileName;
+            if (isCurrentFile) {
+                onHighlightLine(changeLines, this.clearDecoration);
+                return false;
+            } else {
+                return true;
+            }
+        }
+        );
+        this.clearChanges();
+        this.onHighlightChanges();
+        this.currentHistoryIndex = 0;
+    }
+
+    private clearChanges(
+    ) {
+        this.decorationTypes.forEach(decoration => decoration.dispose());
+        this.createDecorationTypes();
     }
 
     private updateStepWithContentChanges(

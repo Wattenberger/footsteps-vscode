@@ -55,26 +55,51 @@
         "title": "Skip forwards in footsteps (different file)",
         "command": "footsteps.skipForwardsDifferentFile",
         "category": "Footsteps navigation"
+      },
+      {
+        "title": "Clear changes within file",
+        "command": "footsteps.clearChangesWithinFile",
+        "category": "Footsteps navigation"
+      },
+      {
+        "title": "Toggle highlighting lines",
+        "command": "footsteps.toggleHighlightingLines",
+        "category": "Footsteps navigation"
       }
     ],
     "configuration": {
       "type": "object",
       "title": "Footsteps configuration",
       "properties": {
-        "footsteps.maxNumberOfChangesToRemember": {
+        "footsteps.highlightColor": {
+          "type": "string",
+          "default": "rgb(153, 128, 250)",
+          "description": "The color of the highlighted trail (in rgb format). I'd recommend keeping this subtle - black (`rgb(0, 0, 0)`) if you have a dark theme and white (`rgb(255, 255, 255)`) if you have a light theme."
+        },
+        "footsteps.highlightColorMaxOpacity": {
           "type": "number",
-          "default": 10,
-          "description": "The number of changes to save in history."
+          "default": 0.4,
+          "description": "The maximum opacity for highlighting recently changed lines (0 - 1)"
+        },
+        "footsteps.doHighlightChanges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Turn on to highlight changed lines (historical changes will still be saved, for navigation)"
+        },
+        "footsteps.doHighlightCurrentlyFocusedChunk": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn off to prevent highlighting the currently focused chunk of edited code."
         },
         "footsteps.maxNumberOfChangesToHighlight": {
           "type": "number",
           "default": 6,
-          "description": "The number of changes to highlight."
+          "description": "The number of changes to highlight with the background color."
         },
-        "footsteps.highlightColor": {
-          "type": "string",
-          "default": "rgb(153, 128, 250)",
-          "description": "The color of the highlighted trail (in rgb format)."
+        "footsteps.maxNumberOfChangesToRemember": {
+          "type": "number",
+          "default": 10,
+          "description": "The number of changes to save in history for using your keybindings to navigate between."
         }
       }
     }
