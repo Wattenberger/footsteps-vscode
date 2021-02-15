@@ -67,6 +67,18 @@
         "category": "Footsteps navigation"
       }
     ],
+    "keybindings": [
+      {
+        "command": "footsteps.skipBack",
+        "key": "ctrl+alt+left",
+        "mac": "ctrl+alt+left"
+      },
+      {
+        "command": "footsteps.skipForwards",
+        "key": "ctrl+alt+right",
+        "mac": "ctrl+alt+right"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Footsteps configuration",

@@ -2,6 +2,8 @@
 
 Keep your place when jumping between a different parts of your code. This is a VSCode extension that will highlight lines as you edit them, fading as you move away.
 
+Jump between lines using `ctrl+alt+left` and `ctrl+alt+right`.
+
 ![The extension in-action](https://github.com/Wattenberger/footsteps-vscode/blob/main/footsteps.gif?raw=true)
 
 ## Extension Settings
@@ -51,11 +53,11 @@ This extension doesn't have any default commands, to prevent from clashing with 
 
 * `footsteps.skipBack`
 
-  Skip back in footsteps. Suggested: `alt+ctrl+left`
+  Skip back in footsteps. Default: `ctrl+alt+left`
 
 * `footsteps.skipForwards`
 
-  Skip forwards in footsteps. Suggested: `alt+ctrl+right`
+  Skip forwards in footsteps. Default: `ctrl+alt+right`
 
 * `footsteps.skipBackSameFile`
 
