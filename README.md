@@ -1,4 +1,6 @@
-# 👣 Footsteps 🐾
+# 👣 Footsteps 🐾 
+[![](https://vsmarketplacebadge.apphb.com/version-short/Wattenberger.footsteps.svg)](https://marketplace.visualstudio.com/items?itemName=Wattenberger.footsteps)
+
 
 Keep your place when jumping between a different parts of your code. This is a VSCode extension that will highlight lines as you edit them, fading as you move away.
 
