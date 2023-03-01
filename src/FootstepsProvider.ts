@@ -20,6 +20,7 @@ export class FootstepsProvider {
     private history: History = [];
     private currentHistoryIndex: number = 0;
     private maxNumberOfChangesToRemember: number = 10;
+    private clearChangesOnFileSave: boolean = false;
     private maxNumberOfChangesToHighlight: number = 6;
     private decorationTypes: TextEditorDecorationType[] = [];
     private highlightColor: string = "rgb(255, 99, 72)";
@@ -46,6 +47,12 @@ export class FootstepsProvider {
             this.onSyncWithSettings();
             this.createDecorationTypes();
         });
+
+        workspace.onDidSaveTextDocument((document) => {
+            if (this.clearChangesOnFileSave) {
+                this.onClearChangesWithinFile(document);
+            }
+        });
     }
 
     private onSyncWithSettings(): void {
@@ -57,6 +64,7 @@ export class FootstepsProvider {
 
         this.maxNumberOfChangesToRemember =
             userSetting.maxNumberOfChangesToRemember;
+        this.clearChangesOnFileSave = userSetting.clearChangesOnFileSave;
         this.maxNumberOfChangesToHighlight =
             userSetting.maxNumberOfChangesToHighlight;
         this.highlightColor = userSetting.highlightColor;

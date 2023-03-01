@@ -46,6 +46,12 @@ This extension allows the following settings:
 
   The number of changes to highlight. A lower number drops off more quickly.
 
+- `footsteps.clearChangesOnFileSave`
+
+  Default: false
+
+  Whether or not to clear changes in a file when you save it.
+
 ## Commands
 
 This extension doesn't have any default commands, to prevent from clashing with your setup. Bind your own keybindings to these commands:

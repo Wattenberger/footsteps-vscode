@@ -117,6 +117,11 @@
           "type": "number",
           "default": 10,
           "description": "The number of changes to save in history for using your keybindings to navigate between."
+        },
+        "footsteps.clearChangesOnFileSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn on to clear all changes within a file when you save it."
         }
       }
     }
