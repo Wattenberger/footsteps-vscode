@@ -95,12 +95,20 @@ export class FootstepsProvider {
             );
     }
 
+    private isCodeEditor(document: TextDocument): boolean {
+        return document.uri.scheme === "file"
+    }
+
     public onHighlightChanges(): void {
         if (!this.doHighlightChanges) {
             return;
         }
         const editor = window.activeTextEditor;
-        const fileName = editor?.document.fileName || "";
+        if (!editor) return;
+        const isCodeEditor = this.isCodeEditor(editor.document);
+        if (!isCodeEditor) return;
+
+        const fileName = editor.document.fileName || "";
 
         const fileChanges = this.getChangesInFile(fileName);
 
