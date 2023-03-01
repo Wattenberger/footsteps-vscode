@@ -26,6 +26,7 @@ export class FootstepsProvider {
     private highlightColor: string = "rgb(255, 99, 72)";
     private doHighlightChanges: boolean = true;
     private doHighlightChangesPerLanguage: Record<string, boolean> = {};
+    private doHighlightEmptyLines: boolean = true;
     private highlightColorMaxOpacity: number = 0.6;
     private doHighlightCurrentlyFocusedChunk: boolean = true;
 
@@ -70,6 +71,7 @@ export class FootstepsProvider {
             userSetting.maxNumberOfChangesToHighlight;
         this.highlightColor = userSetting.highlightColor;
         this.doHighlightChanges = userSetting.doHighlightChanges;
+        this.doHighlightEmptyLines = userSetting.doHighlightEmptyLines;
         this.highlightColorMaxOpacity = userSetting.highlightColorMaxOpacity;
         this.doHighlightCurrentlyFocusedChunk =
             userSetting.doHighlightCurrentlyFocusedChunk;
@@ -282,11 +284,12 @@ export class FootstepsProvider {
             new Array(numberOfLines + numberOfNewLines - numberOfLinesDeleted)
                 .fill(0)
                 .forEach((_, i: number) => {
-                    if (linesText[i].trim() !== "") {
+                    if (linesText[i].trim() !== "" || this.doHighlightEmptyLines) {
                         linesSet.add(linesStart + i);
                     }
                 });
         });
+
         const lines = [...linesSet] as number[];
         const char = contentChanges.slice(-1)[0].range.end.character + 1;
 

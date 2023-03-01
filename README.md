@@ -34,6 +34,12 @@ This extension allows the following settings:
 
   Whether or not to highlight the actively focused chunk. It can be distracting to highlight the code you're actively working on, so this is off by default.
 
+- `footsteps.doHighlightEmptyLines`
+
+  Default: `true`
+
+  Whether or not to highlight changed lines that are empty. Some may find this distracting.
+
 - `footsteps.maxNumberOfChangesToRemember`
 
   Default: `6`

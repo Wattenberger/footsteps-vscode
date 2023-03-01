@@ -109,6 +109,11 @@
           "default": false,
           "description": "Turn off to prevent highlighting the currently focused chunk of edited code."
         },
+        "footsteps.doHighlightEmptyLines": {
+          "type": "boolean",
+          "default": true,
+          "description": "Turn on to highlight empty lines."
+        },
         "footsteps.maxNumberOfChangesToHighlight": {
           "type": "number",
           "default": 6,
