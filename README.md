@@ -10,76 +10,85 @@ Jump between lines using `ctrl+alt+left` and `ctrl+alt+right`.
 
 This extension allows the following settings:
 
-* `footsteps.highlightColor`
+- `footsteps.highlightColor`
 
   Default: `"rgb(153, 128, 250)"`
 
   The color of the highlighted trail (in rgb format). I'd recommend keeping this subtle - black (`rgb(0, 0, 0)`) if you have a dark theme and white (`rgb(255, 255, 255)`) if you have a light theme.
 
-* `footsteps.highlightColorMaxOpacity`
+- `footsteps.highlightColorMaxOpacity`
 
   Default: `0.4`
 
   The maximum opacity for line highlights (`0` - `1`) - higher number means a more opaque highlight.
 
-* `footsteps.doHighlightChanges`
+- `footsteps.doHighlightChanges`
 
   Default: `true`
 
   Whether or not to add line highlights. If this is `false`, it will still allow navigation between chunks.
 
-* `footsteps.doHighlightCurrentlyFocusedChunk`
+- `footsteps.doHighlightCurrentlyFocusedChunk`
 
   Default: `false`
 
   Whether or not to highlight the actively focused chunk. It can be distracting to highlight the code you're actively working on, so this is off by default.
 
-* `footsteps.maxNumberOfChangesToRemember`
+- `footsteps.maxNumberOfChangesToRemember`
 
   Default: `6`
 
   The number of changes to save in history
 
-* `footsteps.maxNumberOfChangesToHighlight`
+- `footsteps.maxNumberOfChangesToHighlight`
 
   Default: `10`
 
   The number of changes to highlight. A lower number drops off more quickly.
 
+- `footsteps.clearChangesOnFileSave`
+
+  Default: false
+
+  Whether or not to clear changes in a file when you save it.
 
 ## Commands
 
 This extension doesn't have any default commands, to prevent from clashing with your setup. Bind your own keybindings to these commands:
 
-* `footsteps.skipBack`
+- `footsteps.skipBack`
 
   Skip back in footsteps. Default: `ctrl+alt+left`
 
-* `footsteps.skipForwards`
+- `footsteps.skipForwards`
 
   Skip forwards in footsteps. Default: `ctrl+alt+right`
 
-* `footsteps.skipBackSameFile`
+- `footsteps.skipBackSameFile`
 
   Skip back in footsteps (stay in the same file)
 
-* `footsteps.skipForwardsSameFile`
+- `footsteps.skipForwardsSameFile`
 
   Skip forwards in footsteps (stay in the same file)
 
-* `footsteps.skipBackDifferentFile`
+- `footsteps.skipBackDifferentFile`
 
   Skip back in footsteps (skip between files)
 
-* `footsteps.skipForwardsDifferentFile`
+- `footsteps.skipForwardsDifferentFile`
 
   Skip forwards in footsteps (skip between files)
 
-* `footsteps.clearChangesWithinFile`
+- `footsteps.clearChangesWithinFile`
 
   Clear all changes within file (useful when you've edited the whole file)
 
-* `footsteps.toggleHighlightingLines`
+- `footsteps.onClearProjectChanges`
+
+  Clear all changes within project
+
+- `footsteps.toggleHighlightingLines`
 
   Toggle the `footsteps.doHighlightChanges` setting: whether or not we are highlighting lines
 
