@@ -25,6 +25,7 @@ export class FootstepsProvider {
     private decorationTypes: TextEditorDecorationType[] = [];
     private highlightColor: string = "rgb(255, 99, 72)";
     private doHighlightChanges: boolean = true;
+    private doHighlightChangesPerLanguage: Record<string, boolean> = {};
     private highlightColorMaxOpacity: number = 0.6;
     private doHighlightCurrentlyFocusedChunk: boolean = true;
 
@@ -72,6 +73,7 @@ export class FootstepsProvider {
         this.highlightColorMaxOpacity = userSetting.highlightColorMaxOpacity;
         this.doHighlightCurrentlyFocusedChunk =
             userSetting.doHighlightCurrentlyFocusedChunk;
+        this.doHighlightChangesPerLanguage = {};
     }
 
     private createDecorationTypes(): void {
@@ -107,6 +109,13 @@ export class FootstepsProvider {
         if (!editor) return;
         const isCodeEditor = this.isCodeEditor(editor.document);
         if (!isCodeEditor) return;
+
+        const language = editor.document.languageId;
+        const doHighlightChangesForLanguage = this.doHighlightChangesPerLanguage[language]
+            || workspace.getConfiguration("footsteps", {
+                languageId: language,
+            }).doHighlightChanges;
+        if (!doHighlightChangesForLanguage) return;
 
         const fileName = editor.document.fileName || "";
 

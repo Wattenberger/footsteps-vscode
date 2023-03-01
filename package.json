@@ -101,7 +101,8 @@
         "footsteps.doHighlightChanges": {
           "type": "boolean",
           "default": true,
-          "description": "Turn on to highlight changed lines (historical changes will still be saved, for navigation)"
+          "description": "Turn on to highlight changed lines (historical changes will still be saved, for navigation)",
+          "scope": "language-overridable"
         },
         "footsteps.doHighlightCurrentlyFocusedChunk": {
           "type": "boolean",
