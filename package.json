@@ -124,6 +124,11 @@
           "default": 10,
           "description": "The number of changes to save in history for using your keybindings to navigate between."
         },
+        "footsteps.minDistanceFromCursorToHighlight": {
+          "type": "number",
+          "default": 2,
+          "description": "The minimum distance from the cursor to highlight a line."
+        },
         "footsteps.clearChangesOnFileSave": {
           "type": "boolean",
           "default": false,

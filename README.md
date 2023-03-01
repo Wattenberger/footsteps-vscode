@@ -52,6 +52,12 @@ This extension allows the following settings:
 
   The number of changes to highlight. A lower number drops off more quickly.
 
+- `footsteps.minDistanceFromCursorToHighlight`
+
+  Default: `3`
+
+  The minimum distance from the cursor to highlight a line. This is to prevent distracting highlights when you're actively working on a line.
+
 - `footsteps.clearChangesOnFileSave`
 
   Default: false

@@ -22,6 +22,7 @@ export class FootstepsProvider {
     private maxNumberOfChangesToRemember: number = 10;
     private clearChangesOnFileSave: boolean = false;
     private maxNumberOfChangesToHighlight: number = 6;
+    private minDistanceFromCursorToHighlight: number = 3;
     private decorationTypes: TextEditorDecorationType[] = [];
     private highlightColor: string = "rgb(255, 99, 72)";
     private doHighlightChanges: boolean = true;
@@ -69,6 +70,8 @@ export class FootstepsProvider {
         this.clearChangesOnFileSave = userSetting.clearChangesOnFileSave;
         this.maxNumberOfChangesToHighlight =
             userSetting.maxNumberOfChangesToHighlight;
+        this.minDistanceFromCursorToHighlight =
+            userSetting.minDistanceFromCursorToHighlight;
         this.highlightColor = userSetting.highlightColor;
         this.doHighlightChanges = userSetting.doHighlightChanges;
         this.doHighlightEmptyLines = userSetting.doHighlightEmptyLines;
@@ -140,7 +143,12 @@ export class FootstepsProvider {
                     return;
                 }
             }
-            onHighlightLine(lines, this.decorationTypes[index]);
+            const linesOutsideOfCursorRange = lines.filter(line => {
+                const isLineAboveCursor = line < currentRange[0] - this.minDistanceFromCursorToHighlight;
+                const isLineBelowCursor = line > currentRange[1] + this.minDistanceFromCursorToHighlight;
+                return isLineAboveCursor || isLineBelowCursor
+            });
+            onHighlightLine(linesOutsideOfCursorRange, this.decorationTypes[index]);
         });
     }
 
