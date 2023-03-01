@@ -1,10 +1,22 @@
-import { DocumentHighlightProvider, window, workspace, Position, Selection, Range, Uri, TextEditorDecorationType, Color, ExtensionContext, TextDocumentContentChangeEvent, TextDocument } from 'vscode';
+import {
+    DocumentHighlightProvider,
+    window,
+    workspace,
+    Position,
+    Selection,
+    Range,
+    Uri,
+    TextEditorDecorationType,
+    Color,
+    ExtensionContext,
+    TextDocumentContentChangeEvent,
+    TextDocument,
+} from "vscode";
 
 import { HistoryItem, History } from "./types";
 import { onHighlightLine } from "./decorator";
 
 export class FootstepsProvider {
-
     private history: History = [];
     private currentHistoryIndex: number = 0;
     private maxNumberOfChangesToRemember: number = 10;
@@ -28,7 +40,7 @@ export class FootstepsProvider {
         });
 
         workspace.onDidChangeConfiguration((event) => {
-            if (!event.affectsConfiguration('footsteps')) {
+            if (!event.affectsConfiguration("footsteps")) {
                 return;
             }
             this.onSyncWithSettings();
@@ -43,12 +55,15 @@ export class FootstepsProvider {
             this.clearChanges();
         }
 
-        this.maxNumberOfChangesToRemember = userSetting.maxNumberOfChangesToRemember;
-        this.maxNumberOfChangesToHighlight = userSetting.maxNumberOfChangesToHighlight;
+        this.maxNumberOfChangesToRemember =
+            userSetting.maxNumberOfChangesToRemember;
+        this.maxNumberOfChangesToHighlight =
+            userSetting.maxNumberOfChangesToHighlight;
         this.highlightColor = userSetting.highlightColor;
         this.doHighlightChanges = userSetting.doHighlightChanges;
         this.highlightColorMaxOpacity = userSetting.highlightColorMaxOpacity;
-        this.doHighlightCurrentlyFocusedChunk = userSetting.doHighlightCurrentlyFocusedChunk;
+        this.doHighlightCurrentlyFocusedChunk =
+            userSetting.doHighlightCurrentlyFocusedChunk;
     }
 
     private createDecorationTypes(): void {
@@ -57,17 +72,19 @@ export class FootstepsProvider {
             return this.highlightColorMaxOpacity * (1 - percentAlong);
         };
 
-        this.decorationTypes = new Array(this.maxNumberOfChangesToHighlight).fill(0).map((_, i) => (
-            window.createTextEditorDecorationType({
-                backgroundColor: [
-                    this.highlightColor.replace("rgb", "rgba").replace(/\)/g, ""),
-                    ", ",
-                    getOpacity(i),
-                    ")",
-                ].join(""),
-                isWholeLine: true,
-            })
-        ));
+        this.decorationTypes = new Array(this.maxNumberOfChangesToHighlight)
+            .fill(0)
+            .map((_, i) =>
+                window.createTextEditorDecorationType({
+                    backgroundColor: [
+                        this.highlightColor.replace("rgb", "rgba").replace(/\)/g, ""),
+                        ", ",
+                        getOpacity(i),
+                        ")",
+                    ].join(""),
+                    isWholeLine: true,
+                })
+            );
     }
 
     public onHighlightChanges(): void {
@@ -90,7 +107,8 @@ export class FootstepsProvider {
         fileChanges.forEach(([_, lines], index: number) => {
             if (!this.doHighlightCurrentlyFocusedChunk) {
                 const linesRange = [Math.min(...lines), Math.max(...lines)];
-                const isCurrentChunk = linesRange[0] <= currentRange[0] && linesRange[1] >= currentRange[1];
+                const isCurrentChunk =
+                    linesRange[0] <= currentRange[0] && linesRange[1] >= currentRange[1];
                 if (isCurrentChunk) {
                     return;
                 }
@@ -99,22 +117,25 @@ export class FootstepsProvider {
         });
     }
 
-    private addChangeToHistory(fileName: string, lines: number[], character: number): void {
+    private addChangeToHistory(
+        fileName: string,
+        lines: number[],
+        character: number
+    ): void {
         this.currentHistoryIndex = 0;
 
         const overlappingChangeIndex = this.history
             .slice(0, this.maxNumberOfChangesToHighlight)
-            .findIndex(([
-                changeFileName,
-                changeLines
-            ]: HistoryItem) => (
-                changeFileName === fileName
-                && changeLines.find(line => (
-                    lines.includes(line)
-                    || lines.includes(line - 1)
-                    || lines.includes(line + 1)
-                ))
-            ));
+            .findIndex(
+                ([changeFileName, changeLines]: HistoryItem) =>
+                    changeFileName === fileName &&
+                    changeLines.find(
+                        (line) =>
+                            lines.includes(line) ||
+                            lines.includes(line - 1) ||
+                            lines.includes(line + 1)
+                    )
+            );
 
         const lastPosition = [lines.slice(-1)[0], character];
 
@@ -127,23 +148,20 @@ export class FootstepsProvider {
                 ...this.history.slice(overlappingChangeIndex + 1),
             ];
         } else {
-            this.history = [
-                [fileName, lines, lastPosition],
-                ...this.history,
-            ];
+            this.history = [[fileName, lines, lastPosition], ...this.history];
         }
         this.history = this.history.slice(0, this.maxNumberOfChangesToRemember);
     }
 
     private getChangesInFile(fileName: string): History {
-        return this.history.filter(([changeFileName]: HistoryItem) => (
-            changeFileName === fileName
-        ));
+        return this.history.filter(
+            ([changeFileName]: HistoryItem) => changeFileName === fileName
+        );
     }
     private getChangesInOtherFiles(fileName: string): History {
-        return this.history.filter(([changeFileName]: HistoryItem) => (
-            changeFileName !== fileName
-        ));
+        return this.history.filter(
+            ([changeFileName]: HistoryItem) => changeFileName !== fileName
+        );
     }
 
     public onTimeTravel(
@@ -153,10 +171,14 @@ export class FootstepsProvider {
         const editor = window.activeTextEditor;
         const fileName = editor?.document.fileName || "";
 
-        const changes = restriction === "any" ? this.history
-            : restriction === "within-file" ? this.getChangesInFile(fileName)
-                : restriction === "across-files" ? this.getChangesInOtherFiles(fileName)
-                    : [];
+        const changes =
+            restriction === "any"
+                ? this.history
+                : restriction === "within-file"
+                    ? this.getChangesInFile(fileName)
+                    : restriction === "across-files"
+                        ? this.getChangesInOtherFiles(fileName)
+                        : [];
 
         let newHistoryIndex = this.currentHistoryIndex - diff;
         newHistoryIndex = Math.max(0, newHistoryIndex);
@@ -175,7 +197,11 @@ export class FootstepsProvider {
         this.onUpdateSelection(newFileName, newSelectionLine, newSelectionChar);
     }
 
-    private onUpdateSelection(fileName: string, line: number, character: number): void {
+    private onUpdateSelection(
+        fileName: string,
+        line: number,
+        character: number
+    ): void {
         const editor = window.activeTextEditor;
 
         const newPosition = new Position(line, character);
@@ -183,12 +209,14 @@ export class FootstepsProvider {
 
         const newVisibleRange = new Range(
             new Position(line, character),
-            new Position(line, character),
+            new Position(line, character)
         );
 
         workspace.openTextDocument(Uri.file(fileName)).then((doc) => {
             window.showTextDocument(doc).then(() => {
-                if (!editor) { return; }
+                if (!editor) {
+                    return;
+                }
                 editor.selection = newSelection;
                 editor.revealRange(newVisibleRange, 2);
             });
@@ -197,15 +225,15 @@ export class FootstepsProvider {
 
     public onTextChange(
         contentChanges: TextDocumentContentChangeEvent[],
-        document: TextDocument,
+        document: TextDocument
     ) {
         if (!contentChanges.length) {
             return;
         }
 
-        this.history = this.history.map((step) => (
+        this.history = this.history.map((step) =>
             this.updateStepWithContentChanges(step, contentChanges)
-        ));
+        );
 
         const newText = contentChanges[0].text;
 
@@ -225,9 +253,11 @@ export class FootstepsProvider {
                 ? range.end.line - range.start.line
                 : 0;
 
-            new Array(numberOfLines + numberOfNewLines - numberOfLinesDeleted).fill(0).forEach((_, i: number) => {
-                linesSet.add(linesStart + i);
-            });
+            new Array(numberOfLines + numberOfNewLines - numberOfLinesDeleted)
+                .fill(0)
+                .forEach((_, i: number) => {
+                    linesSet.add(linesStart + i);
+                });
         });
         const lines = [...linesSet] as number[];
         const char = contentChanges.slice(-1)[0].range.end.character + 1;
@@ -241,30 +271,35 @@ export class FootstepsProvider {
         isWholeLine: true,
     });
 
-    public onClearChangesWithinFile(
-        document: TextDocument,
-    ) {
-        this.history = this.history.filter(([
-            changeFileName,
-            changeLines
-        ]: HistoryItem) => {
-            const isCurrentFile = changeFileName === document.fileName;
-            if (isCurrentFile) {
-                onHighlightLine(changeLines, this.clearDecoration);
-                return false;
-            } else {
-                return true;
+    public onClearChangesWithinFile(document: TextDocument) {
+        this.history = this.history.filter(
+            ([changeFileName, changeLines]: HistoryItem) => {
+                const isCurrentFile = changeFileName === document.fileName;
+                if (isCurrentFile) {
+                    onHighlightLine(changeLines, this.clearDecoration);
+                    return false;
+                } else {
+                    return true;
+                }
             }
-        }
         );
         this.clearChanges();
         this.onHighlightChanges();
         this.currentHistoryIndex = 0;
     }
 
-    private clearChanges(
-    ) {
-        this.decorationTypes.forEach(decoration => decoration.dispose());
+    public onClearProjectChanges(document: TextDocument) {
+        this.history = this.history.filter(([_, changeLines]: HistoryItem) => {
+            onHighlightLine(changeLines, this.clearDecoration);
+            return false;
+        });
+        this.clearChanges();
+        this.onHighlightChanges();
+        this.currentHistoryIndex = 0;
+    }
+
+    private clearChanges() {
+        this.decorationTypes.forEach((decoration) => decoration.dispose());
         this.createDecorationTypes();
     }
 
@@ -305,13 +340,13 @@ export class FootstepsProvider {
                 newLastLine += runningLineDiff;
             }
 
-            newLines = [...new Set(
-                newLines.map(line => (
-                    line <= range.start.line
-                        ? line
-                        : line + runningLineDiff
-                ))
-            )].sort();
+            newLines = [
+                ...new Set(
+                    newLines.map((line) =>
+                        line <= range.start.line ? line : line + runningLineDiff
+                    )
+                ),
+            ].sort();
         });
 
         const newLastPosition = [newLastLine, lastPosition[1]];
