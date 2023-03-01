@@ -272,8 +272,9 @@ export class FootstepsProvider {
         contentChanges.forEach(({ range, rangeLength, text }) => {
             const linesStart: number = range.start.line;
             const linesEnd = range.end.line;
+            const linesText = text.split("\n");
             const numberOfLines = linesEnd - linesStart + 1;
-            const numberOfNewLines = text.split("\n").length - 1;
+            const numberOfNewLines = linesText.length - 1;
             const numberOfLinesDeleted = rangeLength
                 ? range.end.line - range.start.line
                 : 0;
@@ -281,7 +282,9 @@ export class FootstepsProvider {
             new Array(numberOfLines + numberOfNewLines - numberOfLinesDeleted)
                 .fill(0)
                 .forEach((_, i: number) => {
-                    linesSet.add(linesStart + i);
+                    if (linesText[i].trim() !== "") {
+                        linesSet.add(linesStart + i);
+                    }
                 });
         });
         const lines = [...linesSet] as number[];
