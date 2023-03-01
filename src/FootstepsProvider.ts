@@ -143,11 +143,11 @@ export class FootstepsProvider {
                     return;
                 }
             }
-            const linesOutsideOfCursorRange = lines.filter(line => {
+            const linesOutsideOfCursorRange = this.minDistanceFromCursorToHighlight ? lines.filter(line => {
                 const isLineAboveCursor = line < currentRange[0] - this.minDistanceFromCursorToHighlight;
                 const isLineBelowCursor = line > currentRange[1] + this.minDistanceFromCursorToHighlight;
                 return isLineAboveCursor || isLineBelowCursor
-            });
+            }) : lines;
             onHighlightLine(linesOutsideOfCursorRange, this.decorationTypes[index]);
         });
     }

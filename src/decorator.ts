@@ -14,14 +14,7 @@ export const onHighlightLine = (
     return;
   }
 
-  const currentLineNumber = window.activeTextEditor?.selection.active.line || 0;
   const ranges = lines.map(line => {
-
-    // don't busy up the currently focused line
-    if (line === currentLineNumber) {
-      return;
-    }
-
     const range = new Range(
       new Position(line, 0),
       new Position(line, 500),
