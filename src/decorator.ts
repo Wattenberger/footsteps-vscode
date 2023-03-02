@@ -1,18 +1,12 @@
-import { window, Position, Range, TextEditorDecorationType } from 'vscode';
+import { Position, Range, TextEditorDecorationType, TextEditor } from 'vscode';
 
 export const onHighlightLine = (
+  editor: TextEditor,
   lines: number[],
   decorationType: TextEditorDecorationType
 ): void => {
 
-  if (!decorationType) {
-    return;
-  }
-
-  const editor = window.activeTextEditor;
-  if (!editor) {
-    return;
-  }
+  if (!decorationType) return;
 
   const ranges = lines.map(line => {
     const range = new Range(
@@ -22,8 +16,6 @@ export const onHighlightLine = (
 
     return range;
   }).filter(d => d) as Range[];
-
-
 
   editor.setDecorations(decorationType, ranges);
 

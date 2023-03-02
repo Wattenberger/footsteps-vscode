@@ -114,6 +114,16 @@
           "default": true,
           "description": "Turn on to highlight empty lines."
         },
+        "footsteps.doHighlightOnClick": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn on to add highlights when you click on a line."
+        },
+        "footsteps.doHighlightInactiveEditors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn on to show highlights in inactive editors (e.g. when you have multiple files open)."
+        },
         "footsteps.maxNumberOfChangesToHighlight": {
           "type": "number",
           "default": 6,
@@ -133,11 +143,6 @@
           "type": "boolean",
           "default": false,
           "description": "Turn on to clear all changes within a file when you save it."
-        },
-        "footsteps.doHighlightOnClick": {
-          "type": "boolean",
-          "default": false,
-          "description": "Turn on to add highlights when you click on a line."
         }
       }
     }

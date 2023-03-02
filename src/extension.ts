@@ -57,10 +57,9 @@ export function activate(context: ExtensionContext) {
 
 	commands.registerCommand("footsteps.clearChangesWithinFile", () => {
 		const document = window?.activeTextEditor?.document;
-		if (!document) {
-			return;
-		}
-		footstepsProvider.onClearChangesWithinFile(document);
+		if (!document) return;
+		if (!window?.activeTextEditor) return;
+		footstepsProvider.onClearChangesWithinFile(document, window?.activeTextEditor);
 	});
 
 	commands.registerCommand("footsteps.clearProjectChanges", () => {

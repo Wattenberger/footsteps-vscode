@@ -30,7 +30,7 @@ This extension allows the following settings:
 
 - `footsteps.doHighlightOnClick`
 
-  Default: `true`
+  Default: `false`
 
   Whether or not to add highlights when you click on a line. This is useful if you want to store a place while navigating around the code.
 
@@ -45,6 +45,12 @@ This extension allows the following settings:
   Default: `true`
 
   Whether or not to highlight changed lines that are empty. Some may find this distracting.
+
+- `footsteps.doHighlightInactiveEditors`
+
+  Default: `false`
+
+  Whether or not to highlight lines in inactive editors. For example, if you have two files open, and you're editing one, this will highlight the lines in the other file.
 
 - `footsteps.maxNumberOfChangesToRemember`
 
