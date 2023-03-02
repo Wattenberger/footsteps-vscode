@@ -63,9 +63,7 @@ export function activate(context: ExtensionContext) {
 	});
 
 	commands.registerCommand("footsteps.clearProjectChanges", () => {
-		const document = window?.activeTextEditor?.document;
-		if (!document) return;
-		footstepsProvider.onClearProjectChanges(document);
+		footstepsProvider.onClearProjectChanges();
 	});
 
 	workspace.onDidChangeTextDocument((event) => {
