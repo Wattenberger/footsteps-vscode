@@ -28,6 +28,12 @@ This extension allows the following settings:
 
   Whether or not to add line highlights. If this is `false`, it will still allow navigation between chunks.
 
+- `footsteps.doHighlightOnClick`
+
+  Default: `true`
+
+  Whether or not to add highlights when you click on a line. This is useful if you want to store a place while navigating around the code.
+
 - `footsteps.doHighlightCurrentlyFocusedChunk`
 
   Default: `false`

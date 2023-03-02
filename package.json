@@ -133,6 +133,11 @@
           "type": "boolean",
           "default": false,
           "description": "Turn on to clear all changes within a file when you save it."
+        },
+        "footsteps.doHighlightOnClick": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn on to add highlights when you click on a line."
         }
       }
     }

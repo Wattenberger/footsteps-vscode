@@ -26,6 +26,7 @@ export class FootstepsProvider {
     private decorationTypes: TextEditorDecorationType[] = [];
     private highlightColor: string = "rgb(255, 99, 72)";
     private doHighlightChanges: boolean = true;
+    private doHighlightOnClick: boolean = true;
     private doHighlightChangesPerLanguage: Record<string, boolean> = {};
     private doHighlightEmptyLines: boolean = true;
     private highlightColorMaxOpacity: number = 0.6;
@@ -39,7 +40,17 @@ export class FootstepsProvider {
             this.onHighlightChanges();
         });
 
-        window.onDidChangeTextEditorSelection(() => {
+        window.onDidChangeTextEditorSelection(({ kind }) => {
+            const didClick = kind === 2;
+            const doIncludeCurrentRange = this.doHighlightOnClick && didClick;
+            if (doIncludeCurrentRange) {
+                const editor = window.activeTextEditor;
+                if (!editor) return;
+                const fileName = editor.document.fileName || "";
+                const line = editor.selection.active.line;
+                const lineLength = editor.document.lineAt(line).text.length;
+                this.addChangeToHistory(fileName, [line], lineLength);
+            }
             this.onHighlightChanges();
         });
 
@@ -56,6 +67,7 @@ export class FootstepsProvider {
                 this.onClearChangesWithinFile(document);
             }
         });
+
     }
 
     private onSyncWithSettings(): void {
@@ -74,6 +86,7 @@ export class FootstepsProvider {
             userSetting.minDistanceFromCursorToHighlight;
         this.highlightColor = userSetting.highlightColor;
         this.doHighlightChanges = userSetting.doHighlightChanges;
+        this.doHighlightOnClick = userSetting.doHighlightOnClick;
         this.doHighlightEmptyLines = userSetting.doHighlightEmptyLines;
         this.highlightColorMaxOpacity = userSetting.highlightColorMaxOpacity;
         this.doHighlightCurrentlyFocusedChunk =
@@ -106,7 +119,7 @@ export class FootstepsProvider {
         return document.uri.scheme === "file"
     }
 
-    public onHighlightChanges(): void {
+    public onHighlightChanges(doIncludeCurrentRange = false): void {
         if (!this.doHighlightChanges) {
             return;
         }
